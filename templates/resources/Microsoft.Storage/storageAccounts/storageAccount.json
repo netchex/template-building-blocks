@@ -6,7 +6,11 @@
     "name": { "type": "string" },
     "location": { "type": "string" },
     "iteration": { "type": "int" },
-    "skuName": { "type": "string" }
+    "skuName": { "type": "string" },
+    "encryption": {
+      "type": "bool",
+      "defaultValue": "false"
+    }
   },
   "variables": {
   },
@@ -19,6 +23,16 @@
       "kind": "Storage",
       "sku": {
         "name": "[parameters('skuName')]"
+      },
+      "properties": {
+        "encryption": {          
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": "[parameters('encryption')]"
+            }
+          }
+        }
       }
     }
   ]

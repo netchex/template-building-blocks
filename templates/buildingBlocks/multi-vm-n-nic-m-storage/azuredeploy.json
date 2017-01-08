@@ -85,7 +85,8 @@
           "name": { "value": "[variables('storageAccount').diagnostic]" },
           "location": { "value": "[variables('location')]" },
           "storageAccountsCount": { "value": 1 },
-          "skuName": { "value": "Standard_LRS" }
+          "skuName": { "value": "Standard_LRS" },
+          "encryption": { "value": false }
         }
       }
     },
@@ -107,7 +108,8 @@
           "name": { "value": "[variables('storageAccount').vhd]" },
           "location": { "value": "[variables('location')]" },
           "storageAccountsCount": { "value": "[parameters('buildingBlockSettings').storageAccountsCount]" },
-          "skuName": { "value": "[parameters('buildingBlockSettings').storageSKU]" }
+          "skuName": { "value": "[parameters('buildingBlockSettings').storageSKU]" },
+          "encryption": { "value": "[parameters('buildingBlockSettings').encryption]"}
         }
       }
     },
