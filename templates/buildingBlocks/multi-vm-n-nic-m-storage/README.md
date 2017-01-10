@@ -103,15 +103,15 @@ Required. The imageReference property defines the operating system installed on 
   }
   ```
 
-- **dataDisks**
-Required. The dataDisks property allows you to specify the number, size, and properties of any data disks you want created for your virtual machines. it contains the following properties:
+- **dataDisksGroup1**
+Required. The dataDisksGroup1 property allows you to specify the number, size, and properties of any data disks you want created for your virtual machines. it contains the following properties:
   - **count** - Required. Number of data disks to create.
   - **properties** -  Required. Object that defines the details about the data disk. Contains:
     - **diskSizeGB** - Required. Disk size in GB.
     - **Caching** - Required. Disk caching setting. The options are "Read" (write through caching) and "ReadWrite" (write back caching), and "None".
     - **createOption** - Required. Type of disk to create. Currently only "Empty" disks are supported.
   ```json
-  "dataDisks": {
+  "dataDisksGroup1": {
     "count": 2,
     "properties": {
       "diskSizeGB": 127,
@@ -122,12 +122,36 @@ Required. The dataDisks property allows you to specify the number, size, and pro
   ```
   **Note** Data disks are optional, but the dataDisks property is required. If not using data disks, set the **count** properties to 0 and leave the **properties** property blank, as shown below. 
   ```json
-  "dataDisks": {
+  "dataDisksGroup1": {
     "count": 0,
     "properties": { }
   }
   ```
-
+  
+- **dataDisksGroup2**
+Required. The dataDisksGroup2 property allows you to specify the number, size, and properties of a second group of data disks you want created for your virtual machines. it contains the following properties:
+  - **count** - Required. Number of data disks to create.
+  - **properties** -  Required. Object that defines the details about the data disk. Contains:
+    - **diskSizeGB** - Required. Disk size in GB.
+    - **Caching** - Required. Disk caching setting. The options are "Read" (write through caching) and "ReadWrite" (write back caching), and "None".
+    - **createOption** - Required. Type of disk to create. Currently only "Empty" disks are supported.
+  ```json
+  "dataDisksGroup2": {
+    "count": 2,
+    "properties": {
+      "diskSizeGB": 127,
+      "caching": "None",
+      "createOption": "Empty"
+    }
+  }
+  ```
+  **Note** Data disks are optional, but the dataDisks property is required. If not using data disks, set the **count** properties to 0 and leave the **properties** property blank, as shown below. 
+  ```json
+  "dataDisksGroup2": {
+    "count": 0,
+    "properties": { }
+  }
+  ```
 
 - **osDisk**  
 Required. The osDisk property is an object allowing you to specify the caching setting of the OS drive via a **caching** sub-property. The options are "Read" (write through caching) and "ReadWrite" (write back caching).
@@ -234,6 +258,16 @@ Required. Number of VMs to create.
   ```json
   "vmStartIndex": 1
   ```
+- **storageSku**    
+ Required. Designates Premium or Standard storage.
+ ```json
+ "storageSku": "Standard_LRS"
+ ```
+- **encryption**  
+ Required. Toggles encryption on storage account.
+ ```json
+ "encryption": true
+ ``` 
 **Note** if there are fewer storage accounts created than VMs, the building block distributes the VMs across the storage accounts as evenly as possible. For example, if you create 2 storage accounts, and 6 VMs, 3 VMs will be deployed to each storage account. 
 
 ## Example parameters file
@@ -292,12 +326,17 @@ The following parameters file creates two VMs named **bb-dev-vm1** and **bb-dev-
           "sku": "2012-R2-Datacenter",
           "version": "latest"
         },
-        "dataDisks": {
+        "dataDisksGroup1": {
           "count": 2,
           "properties": {
             "diskSizeGB": 127,
             "caching": "None",
             "createOption": "Empty"
+          }
+        },
+        "dataDisksGroup2": {
+          "count": 0,
+          "properties": {
           }
         },
         "osDisk": {
@@ -357,7 +396,9 @@ The following parameters file creates two VMs named **bb-dev-vm1** and **bb-dev-
       "value": {
         "storageAccountsCount": 2,
         "vmCount": 2,
-        "vmStartIndex": 1
+        "vmStartIndex": 1,
+        "storageSKU": "Standard_LRS",
+        "encryption": false
       }
     }
   }
