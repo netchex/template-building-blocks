@@ -23,8 +23,9 @@
     "computerName": "[concat(parameters('source').computerNamePrefix, add(parameters('context').vmNamePostFixStartIndex, parameters('iteration')))]",
     "osSettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-osSetting-', variables('templateUniqueString'))]",
     "nicSettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-nicSettings-', variables('templateUniqueString'))]",
-    "dataDiskSettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-dataDiskSettings-', variables('templateUniqueString'))]",
-    "vmSettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-vmSetting-', variables('templateUniqueString'))]",
+    "dataDiskGroup1SettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-dataDiskGroup1Settings-', variables('templateUniqueString'))]",
+    "dataDiskGroup2SettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-dataDiskGroup2Settings-', variables('templateUniqueString'))]",
+    "vmSettingDeploymentName": "[concat(parameters('deploymentContext').parentTemplateUniqueString, '-vmSetting-', variables('templateUniqueString'))]"
   },
   "resources": [
     {
@@ -78,7 +79,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "name": "[variables('dataDiskSettingDeploymentName')]",
+      "name": "[variables('dataDiskGroup1SettingDeploymentName')]",
       "properties": {
         "mode": "Incremental",
         "templateLink": { "uri": "[variables('replicatorTemplate')]" },
@@ -88,17 +89,47 @@
               "parentTemplateUniqueString": "[concat(variables('templateUniqueString'), '-dataDiskSettings')]"
             }
           },
-          "source": { "value": "[parameters('source').dataDisks.properties]" },
+          "source": { "value": "[parameters('source').dataDisksGroup1.properties]" },
           "context": {
             "value": {
               "vnetName": "[parameters('context').vnetName]",
               "storageAccounts": "[parameters('context').storageAccounts]",
               "vmName": "[variables('vmName')]",
-              "vmIndex": "[add(parameters('iteration'), parameters('context').vmNamePostFixStartIndex)]"
+              "vmIndex": "[add(parameters('iteration'), parameters('context').vmNamePostFixStartIndex)]",
+              "startCount": 0
             }
           },
           "mapperTemplateUri": { "value": "[uri(deployment().properties.templateLink.uri, 'virtualMachine-datadisk.json')]" },
-          "copies": { "value": "[parameters('source').dataDisks.count]" }
+          "copies": { "value": "[parameters('source').dataDisksGroup1.count]" }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "name": "[variables('dataDiskGroup2SettingDeploymentName')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": { "uri": "[variables('replicatorTemplate')]" },
+        "parameters": {
+          "deploymentContext": {
+            "value": {
+              "parentTemplateUniqueString": "[concat(variables('templateUniqueString'), '-dataDiskSettings')]"
+            }
+          },
+          "source": { "value": "[parameters('source').dataDisksGroup2.properties]" },
+          "context": {
+            "value": {
+              "vnetName": "[parameters('context').vnetName]",
+              "storageAccounts": "[parameters('context').storageAccounts]",
+              "vmName": "[variables('vmName')]",
+              "vmIndex": "[add(parameters('iteration'), parameters('context').vmNamePostFixStartIndex)]",
+              "startCount": "[parameters('source').dataDisksGroup1.count]"
+            }
+          },
+          "mapperTemplateUri": { "value": "[uri(deployment().properties.templateLink.uri, 'virtualMachine-datadisk.json')]" },
+          "state": {"value": "[reference(variables('dataDiskGroup1SettingDeploymentName')).outputs.result.value]"},
+          "copies": { "value": "[parameters('source').dataDisksGroup2.count]" }
         }
       }
     },
@@ -139,7 +170,7 @@
                     "createOption": "FromImage",
                     "caching": "[parameters('source').osDisk.caching]"
                   },
-                  "dataDisks": "[reference(variables('dataDiskSettingDeploymentName')).outputs.result.value]",
+                  "dataDisks": "[reference(variables('dataDiskGroup2SettingDeploymentName')).outputs.result.value]",
                   "diagnosticsStorageAccountName": "[parameters('context').storageAccounts.diagnostic]",
                   "diagnosticsStorageUri": "[concat('http://', parameters('context').storageAccounts.diagnostic, '.blob.core.windows.net')]",
                   "extensions": "[parameters('source').extensions]"

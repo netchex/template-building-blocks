@@ -17,10 +17,10 @@
   "variables": {
     "instance": [
       {
-        "name": "[concat('dataDisk', add(parameters('iteration'), 1))]",
+        "name": "[concat('dataDisk',add(add(parameters('iteration'), 1), parameters('context').startCount))]",
         "diskSizeGB": "[parameters('source').diskSizeGB]",
-        "lun": "[parameters('iteration')]",
-        "vhd": { "uri": "[concat('http://', parameters('context').storageAccounts.vhd, '.blob.core.windows.net/vhds/', parameters('context').vmName, '-dataDisk', add(parameters('iteration'), 1), '.vhd')]" },
+        "lun": "[add(parameters('iteration'), parameters('context').startCount)]",
+        "vhd": { "uri": "[concat('http://', parameters('context').storageAccounts.vhd, '.blob.core.windows.net/vhds/', parameters('context').vmName, '-dataDisk', add(add(parameters('iteration'), 1), parameters('context').startCount), '.vhd')]" },
         "caching": "[parameters('source').caching]",
         "createOption": "[parameters('source').createOption]"
       }
